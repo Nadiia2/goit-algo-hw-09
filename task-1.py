@@ -1,22 +1,49 @@
-import heapq
+import timeit
 
-def min_cost(cable_lengths):
+def find_coins_greedy(amount):
+    coins = [50, 25, 10, 5, 2, 1]
+    result = {}
     
-    heapq.heapify(cable_lengths)
+    for coin in coins:
+        if amount >= coin:
+            count = amount // coin
+            result[coin] = count
+            amount -= coin * count
     
-    total_cost = 0
-    
-    while len(cable_lengths) > 1:
-        cable_1 = heapq.heappop(cable_lengths)
-        cable_2 = heapq.heappop(cable_lengths)
-    
-        cost = cable_1 + cable_2
-        total_cost += cost
+    return result
 
-        heapq.heappush(cable_lengths, cost)
-    
-    return total_cost
+amount = 113
+greedy_result = find_coins_greedy(amount)
+print("Greedy result:", greedy_result)
 
-cable_lengths = [4, 3, 9, 2, 6]
-total_cost = min_cost(cable_lengths)
-print(f"Cost to connect all cables: {total_cost}")
+def find_min_coins(amount):
+    coins = [1, 2, 5, 10, 25, 50]
+    min_coins = [0] + [float('inf')] * amount
+    coin_used = [0] * (amount + 1)
+    
+    for coin in coins:
+        for i in range(coin, amount + 1):
+            if min_coins[i - coin] + 1 < min_coins[i]:
+                min_coins[i] = min_coins[i - coin] + 1
+                coin_used[i] = coin
+    
+    result = {}
+    while amount > 0:
+        coin = coin_used[amount]
+        if coin in result:
+            result[coin] += 1
+        else:
+            result[coin] = 1
+        amount -= coin
+    
+    return result
+
+
+dp_result = find_min_coins(amount)
+print("DP result:", dp_result)
+
+greedy_time = timeit.timeit(lambda: find_coins_greedy(amount), number=1000)
+print("Greedy algorithm time:", greedy_time)
+
+dp_time = timeit.timeit(lambda: find_min_coins(amount), number=1000)
+print("Dynamic programming algorithm time:", dp_time)
